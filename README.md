@@ -1,181 +1,116 @@
-# Cookie Session Authentication
+Cookie Session Authentication - POSTMAN TEST
 
-A Node.js/Express application demonstrating secure session-based authentication using cookies, MongoDB session storage, and bcrypt password hashing.
 
-## 🔐 Features
+PHAN 1: USER REGISTRATION TEST
 
-- **User Registration**: Secure user registration with password hashing
-- **Session-based Authentication**: Uses Express sessions with MongoDB storage
-- **Cookie Management**: HTTP-only cookies for enhanced security
-- **Password Hashing**: Bcrypt for secure password storage
-- **Protected Routes**: Middleware-based route protection
-- **MongoDB Integration**: User data and session storage
-
-## 🏗️ Project Structure
-
-```
-cookie_session_auth/
-├── app.js                 # Main application file
-├── models/
-│   └── User.js           # User model with password hashing
-├── routes/
-│   └── auth.js           # Authentication routes
-├── package.json          # Dependencies and scripts
-└── README.md            # This file
-```
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js (v14 or higher)
-- MongoDB running locally on `mongodb://127.0.0.1:27017`
-
-### Installation
-
-1. Install dependencies:
-```bash
-npm install
-```
-
-2. Start MongoDB service on your local machine
-
-3. Run the application:
-```bash
-node app.js
-```
-
-The server will start on `http://localhost:3000`
-
-## 📚 API Endpoints
-
-### Authentication Routes
-
-All authentication endpoints are prefixed with `/auth`:
-
-#### Register User
-```http
-POST /auth/register
-Content-Type: application/json
-
+Buoc 1: Test register user moi
+Method: POST
+URL: http://localhost:3000/auth/register
+Headers: Content-Type: application/json
+Body (raw JSON):
 {
-  "username": "your_username",
-  "password": "your_password"
+  "username": "testuser",
+  "password": "testpass123"
 }
-```
+Ket qua: User registered successfully!
+Status: 200
+![alt text](public/img/1.png)
+![alt text](public/img/m1.png)
 
-#### Login
-```http
-POST /auth/login
-Content-Type: application/json
-
+Buoc 2: Test register user da ton tai
+Method: POST
+URL: http://localhost:3000/auth/register
+Headers: Content-Type: application/json
+Body (raw JSON):
 {
-  "username": "your_username",
-  "password": "your_password"
+  "username": "testuser",
+  "password": "anypass"
 }
-```
+Ket qua: User registration failed
+Status: 400
+![alt text](public/img/2.png)
 
-#### Logout
-```http
-GET /auth/logout
-```
+PHAN 2: LOGIN TEST
 
-#### Get User Profile (Protected)
-```http
-GET /auth/profile
-```
-*Requires valid session cookie*
+Buoc 3: Test login sai username
+Method: POST
+URL: http://localhost:3000/auth/login
+Headers: Content-Type: application/json
+Body (raw JSON):
+{
+  "username": "wronguser",
+  "password": "testpass123"
+}
+Ket qua: Invalid username or password
+Status: 400
+![alt text](public/img/3.png)
 
-## 🧪 Testing with curl
+Buoc 4: Test login sai password
+Method: POST
+URL: http://localhost:3000/auth/login
+Headers: Content-Type: application/json
+Body (raw JSON):
+{
+  "username": "testuser",
+  "password": "wrongpass"
+}
+Ket qua: Invalid username or password
+Status: 400
+![alt text](public/img/4.png)
 
-### 1. Register a new user:
-```bash
-curl -X POST http://localhost:3000/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"username":"testuser","password":"testpass123"}'
-```
+Buoc 5: Test login dung credentials
+Method: POST
+URL: http://localhost:3000/auth/login
+Headers: Content-Type: application/json
+Body (raw JSON):
+{
+  "username": "testuser",
+  "password": "testpass123"
+}
+Ket qua: Login successful!
+Status: 200
+CHU Y: Postman tu dong luu session cookie connect.sid
+![alt text](public/img/5.png)
+![alt text](public/img/m2.png)
 
-### 2. Login (save cookies):
-```bash
-curl -X POST http://localhost:3000/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"testuser","password":"testpass123"}' \
-  -c cookies.txt
-```
+Buoc 6: Kiem tra session cookie
+Vao tab Cookies trong Postman
+Tim cookie connect.sid
+Xem gia tri session ID
+![alt text](public/img/6.png)
 
-### 3. Access protected profile route:
-```bash
-curl -X GET http://localhost:3000/auth/profile \
-  -b cookies.txt
-```
+PHAN 3: PROTECTED ROUTE TEST
 
-### 4. Logout:
-```bash
-curl -X GET http://localhost:3000/auth/logout \
-  -b cookies.txt
-```
+Buoc 7: Test profile route khong co session
+Mo Postman tab/window moi (hoac xoa cookies)
+Method: GET
+URL: http://localhost:3000/auth/profile
+Ket qua: Unauthorized
+Status: 401
+![alt text](public/img/7.png)
 
-## 🔧 Configuration
+Buoc 8: Test profile route co session hop le
+Method: GET
+URL: http://localhost:3000/auth/profile
+CHU Y: Dung tab da login o Buoc 5
+Ket qua: Thong tin user (khong co password)
+Status: 200
+![alt text](public/img/8.png)
 
-### Session Configuration
-- **Secret**: `mysecretkey` (change in production)
-- **Duration**: 1 hour (3600 seconds)
-- **HTTP-Only**: True (prevents XSS attacks)
-- **Secure**: False (set to true in production with HTTPS)
+PHAN 4: LOGOUT TEST
 
-### MongoDB Configuration
-- **Database**: `sessionAuth`
-- **Connection**: `mongodb://127.0.0.1:27017/sessionAuth`
+Buoc 9: Test logout
+Method: GET
+URL: http://localhost:3000/auth/logout
+Ket qua: Logout successful!
+Status: 200
+CHU Y: Session va cookie bi xoa
+![alt text](public/img/9.png)
 
-## 📦 Dependencies
-
-- **express** - Web application framework
-- **mongoose** - MongoDB object modeling
-- **express-session** - Session middleware
-- **connect-mongo** - MongoDB session store
-- **cookie-parser** - Cookie parsing middleware
-- **bcryptjs** - Password hashing library
-
-## 🔒 Security Features
-
-- **Password Hashing**: Bcrypt with salt rounds (10)
-- **HTTP-Only Cookies**: Prevents XSS attacks
-- **Session Storage**: MongoDB-based session persistence
-- **Secure Headers**: Can be enhanced with helmet.js
-- **Input Validation**: Basic validation (can be extended)
-
-## 🌟 Key Implementation Details
-
-### Password Security
-- Passwords are hashed using bcrypt before storage
-- Salt rounds: 10 (good balance of security and performance)
-- Password comparison uses bcrypt's secure compare function
-
-### Session Management
-- Sessions stored in MongoDB using connect-mongo
-- Automatic session cleanup for expired sessions
-- Session cookie named `connect.sid` by default
-
-### Route Protection
-- Middleware checks for `req.session.userId`
-- Unauthorized access returns 401 status
-- User data retrieved without password field
-
-## ⚠️ Production Considerations
-
-- Change the session secret to a strong, random value
-- Set `cookie.secure: true` when using HTTPS
-- Implement rate limiting for auth endpoints
-- Add input validation and sanitization
-- Use environment variables for configuration
-- Implement CSRF protection
-- Add proper error handling and logging
-- Consider using helmet.js for security headers
-
-## 📝 License
-
-ISC
-
-## 👨‍💻 Author
-
-Educational project for microservice authentication concepts.
+Buoc 10: Test profile sau khi logout
+Method: GET
+URL: http://localhost:3000/auth/profile
+Ket qua: Unauthorized
+Status: 401
+![alt text](public/img/10.png)
+![alt text](public/img/m3.png)
